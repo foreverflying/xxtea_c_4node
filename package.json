@@ -1,6 +1,6 @@
 {
   "name": "xxtea_c",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "node version xxtea from quick-cocos2dx.",
   "main": "./build/Release/xxtea_c.node",
   "repository": {
