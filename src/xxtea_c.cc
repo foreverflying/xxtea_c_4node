@@ -1,6 +1,8 @@
 #include <node.h>
 #include <v8.h>
 #include <node_buffer.h>
+#include <stdlib.h>
+#include <string.h>
 extern "C" {
 #include "xxtea.h"
 }
