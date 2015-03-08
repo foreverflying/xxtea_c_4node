@@ -4,16 +4,18 @@
 #include <stdlib.h>
 #include <string.h>
 extern "C" {
-#include "xxtea.h"
+#include "xxtea1.h"
 }
 
 using namespace v8;
 using namespace node;
 
-Handle<Value> xxtea( const Arguments& args, bool encrypt )
+typedef unsigned char *(*xxtea_api)(unsigned char *, xxtea_long, unsigned char *, xxtea_long *);
+
+Handle<Value> xxtea( const Arguments& args, xxtea_api func )
 {
     HandleScope scope;
-    if( args.Length() != 2 || !Buffer::HasInstance( args[0] ) || !Buffer::HasInstance( args[0] ) ){
+    if( args.Length() != 2 || !Buffer::HasInstance( args[0] ) || !Buffer::HasInstance( args[1] ) ){
         ThrowException( Exception::TypeError( String::New( "Wrong arguments" ) ) );
         return scope.Close( Undefined() );
     }
@@ -21,12 +23,15 @@ Handle<Value> xxtea( const Arguments& args, bool encrypt )
     size_t plainLen = Buffer::Length( args[0] );
     char* keyBuf = Buffer::Data( args[1] );
     size_t keyLen = Buffer::Length( args[1] );
+    xxtea_long retLen = 0;
     unsigned char* ret;
-    xxtea_long retLen;
-    if( encrypt ){
-        ret = xxtea_encrypt( (unsigned char*)plainBuf, (xxtea_long)plainLen, (unsigned char*)keyBuf, (xxtea_long)keyLen, &retLen );
+    if( keyLen < 16 ){
+        char key[16];
+        memcpy( key, keyBuf, keyLen );
+        memset( key + keyLen, 0, 16 - keyLen );
+        ret = func( (unsigned char*)plainBuf, (xxtea_long)plainLen, (unsigned char*)key, &retLen );
     }else{
-        ret = xxtea_decrypt( (unsigned char*)plainBuf, (xxtea_long)plainLen, (unsigned char*)keyBuf, (xxtea_long)keyLen, &retLen );
+        ret = func( (unsigned char*)plainBuf, (xxtea_long)plainLen, (unsigned char*)keyBuf, &retLen );
     }
     Buffer* slowBuffer = Buffer::New( retLen );
     memcpy( Buffer::Data( slowBuffer ), ret, retLen );
@@ -40,12 +45,12 @@ Handle<Value> xxtea( const Arguments& args, bool encrypt )
 
 Handle<Value> encrypt( const Arguments& args )
 {
-    return xxtea( args, true );
+    return xxtea( args, do_xxtea_encrypt );
 }
 
 Handle<Value> decrypt( const Arguments& args )
 {
-    return xxtea( args, false );
+    return xxtea( args, do_xxtea_decrypt );
 }
 
 void init( Handle<Object> target )

@@ -107,7 +107,7 @@ static unsigned char *xxtea_to_byte_array(xxtea_long *data, xxtea_long len, int 
     return result;
 }
 
-static unsigned char *do_xxtea_encrypt(unsigned char *data, xxtea_long len, unsigned char *key, xxtea_long *ret_len) {
+unsigned char *do_xxtea_encrypt(unsigned char *data, xxtea_long len, unsigned char *key, xxtea_long *ret_len) {
     unsigned char *result;
     xxtea_long *v, *k, v_len, k_len;
     
@@ -121,7 +121,7 @@ static unsigned char *do_xxtea_encrypt(unsigned char *data, xxtea_long len, unsi
     return result;
 }
 
-static unsigned char *do_xxtea_decrypt(unsigned char *data, xxtea_long len, unsigned char *key, xxtea_long *ret_len) {
+unsigned char *do_xxtea_decrypt(unsigned char *data, xxtea_long len, unsigned char *key, xxtea_long *ret_len) {
     unsigned char *result;
     xxtea_long *v, *k, v_len, k_len;
     
@@ -131,44 +131,6 @@ static unsigned char *do_xxtea_decrypt(unsigned char *data, xxtea_long len, unsi
     result = xxtea_to_byte_array(v, v_len, 1, ret_len);
     free(v);
     free(k);
-    
-    return result;
-}
-
-unsigned char *xxtea_encrypt(unsigned char *data, xxtea_long data_len, unsigned char *key, xxtea_long key_len, xxtea_long *ret_length)
-{
-    unsigned char *result;
-    
-    *ret_length = 0;
-    
-    if (key_len < 16) {
-        unsigned char *key2 = fix_key_length(key, key_len);
-        result = do_xxtea_encrypt(data, data_len, key2, ret_length);
-        free(key2);
-    }
-    else
-    {
-        result = do_xxtea_encrypt(data, data_len, key, ret_length);
-    }
-    
-    return result;
-}
-
-unsigned char *xxtea_decrypt(unsigned char *data, xxtea_long data_len, unsigned char *key, xxtea_long key_len, xxtea_long *ret_length)
-{
-    unsigned char *result;
-    
-    *ret_length = 0;
-    
-    if (key_len < 16) {
-        unsigned char *key2 = fix_key_length(key, key_len);
-        result = do_xxtea_decrypt(data, data_len, key2, ret_length);
-        free(key2);
-    }
-    else
-    {
-        result = do_xxtea_decrypt(data, data_len, key, ret_length);
-    }
     
     return result;
 }
