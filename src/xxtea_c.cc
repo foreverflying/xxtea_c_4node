@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 extern "C" {
-#include "xxtea1.h"
+#include "xxtea.h"
 }
 
 using namespace v8;
